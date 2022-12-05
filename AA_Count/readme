@@ -1,0 +1,1 @@
+This directory contains example protein sequences in fasta format, which are analyzed by count_AAs.sh. You can process any number of files really quickly.  
