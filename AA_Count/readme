@@ -1,1 +1,21 @@
 This directory contains example protein sequences in fasta format, which are analyzed by count_AAs.sh. You can process any number of files really quickly.  
+Note, I need to implement counting the total AAs by summing up the AA counts, instead of the byte count of the file, as the byte count of the file is always 1 higher than the number of AAs. This leads to very small differences for most proteins, i.e dividing by 254 instead of 253, so it doesn't impact the fractions much, but is something to be fixed.
+
+Usage:
+./count_AAs.sh file_list
+
+where file_list contains a list of files, one per line, i.e
+XXXX.fasta
+XXXY.fasta
+XXXZ.fasta 
+etc
+
+Some tricks used in the script:
+Fasta files have a header line which is typically:
+>XXXX_1 | Chain A| Protein name | organism | taxonomy id
+So from this, I cut this line out of the file as I don't want to count instances of amino acid one-letter codes and have any other text in the file. I also cut the PDB code from this string and use it as a variable.
+
+Bash doesn't do floating point arithmetic, so for calculating fractions out of the total AA I use bc. I currently only have four decimal places here, but will extend this for publication data (otherwise you can get 99.6% versus 100% etc.)
+
+currently, I use F,Y,W as aromatic AAs in this script, E,D,R,K as charged, and various other breakdowns. I did not group Histidine into charged residues. 
+
