@@ -31,38 +31,34 @@ done
 echo "I wrote the file to make the coordinates"
 # Run after loop to avoid issues. I just moved all the files after they were generated
 ./cut_xyz_commands.txt
-#mv {0..$index}.xyz ./coordinates/
 
 # INPUTFILE SECTION
 mkdir inputfiles
 for i in $(seq 0 $stride $index); do
 mkdir $i
-# Need an alternative index so that you can stride things if needed
-#let j=$i
 # Needed to read file size like in first script for index here. You can use echo like I do here, or you could just put a string in and used sed to replace it
 # This is currently set up for TC on supercloud
 echo "coordinates ../coordinates/${i}.xyz
 basis lacvps_ecp
 method wpbeh
-charge 0
+charge -1
 spinmult 1
 maxit 1000
-dftd d3
 scf diis+a
 scrdir ./scr
 pcm cosmo
 epsilon 80
 pcm_radii read
-pcm_radii_file ../pcm_radii_with_gold
+pcm_radii_file ../pcm_radii
 end" > $i.input
 done
 mv *.input ./inputfiles/
 
-
 echo "#!/bin/bash
-#SBATCH --job-name=mc6sa
+#SBATCH --job-name=mc6
 #SBATCH --nodes=1
 #SBATCH --gres=gpu:volta:1
+#SBATCH --time=100:00:00
 #SBATCH --ntasks-per-node=20
 
 module load icc/2019.5 cuda/11.0
@@ -77,6 +73,10 @@ export LD_LIBRARY_PATH=\$TeraChem/lib:\$LD_LIBRARY_PATH
 for i in \$(seq 0 ${stride} ${index}); do
 cd \$i
 terachem ../inputfiles/\${i}.input > \${i}.out
+echo "I just completed \$i job"
 sleep 10
 cd ../
 done" > job_submission.sh
+
+
+
